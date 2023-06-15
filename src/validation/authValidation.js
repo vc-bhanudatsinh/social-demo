@@ -31,6 +31,7 @@ export const userSignUpSchema = joi.object().keys({
         "number.base": "Phone Number should be number",
         "number.min": "Phone Number should contain 10 digit only",
         "number.max": "Phone Number should contain 10 digit only",
+        "number.empty": "Phone Number can not be empty",
       }),
     email: joi
       .string()
@@ -43,6 +44,7 @@ export const userSignUpSchema = joi.object().keys({
       .messages({
         "string.base": "Email should be string",
         "string.required": "Email is a required field",
+        "string.empty": "Email can not be empty",
       }),
   }),
 });
@@ -59,6 +61,7 @@ export const userLoginSchema = joi.object().keys({
       })
       .messages({
         "string.base": "Email should be string",
+        "string.empty": "Email can not be empty",
         "any.required": "Email is a required field",
       }),
     password: joi.string().min(8).max(20).required().messages({

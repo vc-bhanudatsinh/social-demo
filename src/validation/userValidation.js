@@ -12,6 +12,7 @@ export const getProfileSchema = joi.object().keys({
       })
       .messages({
         "string.base": "Email should be string",
+        "string.empty": "Email can not be empty",
         "string.required": "Email is a required field",
       }),
   }),
@@ -29,6 +30,7 @@ export const editProfileSchema = joi.object().keys({
       })
       .messages({
         "string.base": "Email should be string",
+        "string.empty": "Email can not be empty",
         "any.required": "Email is a required field",
       }),
     newEmail: joi
@@ -41,12 +43,14 @@ export const editProfileSchema = joi.object().keys({
       .messages({
         "string.base": "Email should be string",
         "string.required": "Email is a required field",
+        "string.empty": "Email can not be empty",
       }),
     firstName: joi.string().min(2).max(20).messages({
       "string.base": "First Name should be string",
       "string.empty": "First Name should be not empty",
       "string.min": "First Name length should be min 2",
       "string.max": "First Name length should be max 20",
+      "string.empty": "First Name can not be empty",
       "any.required": "First Name is required field",
     }),
     lastName: joi.string().min(2).max(20).messages({
@@ -54,6 +58,7 @@ export const editProfileSchema = joi.object().keys({
       "string.empty": "Last Name should be not empty",
       "string.min": "Last Name length should be min 2",
       "string.max": "Last Name length should be max 20",
+      "string.empty": "Last Name can not be empty",
       "any.required": "Last Name is required field",
     }),
     phoneNo: joi
@@ -64,6 +69,7 @@ export const editProfileSchema = joi.object().keys({
         "number.base": "Phone Number should be number",
         "number.min": "Phone Number should contain 10 digit only",
         "number.max": "Phone Number should contain 10 digit only",
+        "number.empty": "Phone Number can not be empty",
       }),
   }),
 });
