@@ -7,7 +7,6 @@ export const createPost = async (data) => {
 
 export const getUserPosts = async (userId, limit = 5, skip = 0) => {
   userId = new mongoose.Types.ObjectId(userId);
-  console.log("userId", userId);
   const pipeline = [
     {
       $match: {

@@ -5,8 +5,7 @@ export const createComment = async (data, id) => {
   return await Post.updateOne({ id }, { $push: { comments: data } });
 };
 
-export const getComments = async (id, startIndex, limit) => {
-  console.log("limit", limit, startIndex);
+export const getComments = async (id, startIndex, limit, searchedComment) => {
   const postId = new mongoose.Types.ObjectId(id);
   const pipeline = [
     {
@@ -16,6 +15,11 @@ export const getComments = async (id, startIndex, limit) => {
     },
     {
       $unwind: "$comments",
+    },
+    {
+      $match: {
+        "comments.comment": searchedComment,
+      },
     },
     {
       $sort: { "comments.createdAt": -1 },

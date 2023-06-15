@@ -4,7 +4,6 @@ export const createComment = joi.object().keys({
   body: joi.object().keys({
     comment: joi.string().required().messages({
       "string.base": "Share Only should be string",
-      "string.min": "Share Only should be greater than length 2",
       "string.required": "Share Only is required",
     }),
     mentions: joi.array().items(
@@ -16,8 +15,16 @@ export const createComment = joi.object().keys({
     ),
     postId: joi.string().required().messages({
       "string.base": "Share Only should be string",
-      "string.min": "Share Only should be greater than length 2",
       "string.required": "Share Only is required",
+    }),
+  }),
+});
+
+export const getComment = joi.object().keys({
+  query: joi.object().keys({
+    searchedComment: joi.string().messages({
+      "string.base": "Search text should be string",
+      "string.required": "Search text is required",
     }),
   }),
 });

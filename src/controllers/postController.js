@@ -14,7 +14,6 @@ import * as apiMessage from "../constants/messageConstant.js";
  */
 export const createPost = async (req, res, next) => {
   const { title, description, mentions, postType, shareOnly } = req.body;
-  console.log("postType", postType);
 
   let userIds, shareOnlyIds, post;
   const data = {
@@ -36,7 +35,6 @@ export const createPost = async (req, res, next) => {
 
   if (mentions) {
     userIds = await userService.getUserIds(mentions);
-    console.log("userIds", userIds);
     if (userIds.length === 0)
       return apiResponse(
         res,
@@ -73,7 +71,6 @@ export const getUserPost = async (req, res, next) => {
   const { limit, pageNo = 1 } = req.query;
   const skip = (pageNo - 1) * limit;
   const posts = await postService.getUserPosts(req.user.id, +limit, +skip);
-  console.log("posts", posts);
   return apiResponse(
     res,
     httpStatus.OK,

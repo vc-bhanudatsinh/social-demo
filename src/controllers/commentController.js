@@ -9,10 +9,7 @@ import * as apiMessage from "../constants/messageConstant.js";
 
 export const createComment = async (req, res, next) => {
   const { postId, comment, mentions } = req.body;
-  console.log("postId", postId);
-  console.log("req.user", req.user);
   const post = await postService.getPostById(postId);
-  console.log("post", post);
   if (!post)
     return apiResponse(
       res,
@@ -34,7 +31,6 @@ export const createComment = async (req, res, next) => {
     comment,
   };
   data.mentions = await userService.getUserIds(mentions);
-  console.log("data.mentions", data.mentions);
   const createdComment = await commentService.createComment(data);
 
   if (createdComment.matchedCount === 0)
@@ -48,12 +44,13 @@ export const createComment = async (req, res, next) => {
 
 export const getComment = async (req, res, next) => {
   const postId = req.params.postId;
-  const { limit = 5, pageNo = 1 } = req.query;
+  const { limit = 5, pageNo = 1, searchedComment } = req.query;
   const startIndex = (pageNo - 1) * limit;
   const comments = await commentService.getComments(
     postId,
     +startIndex,
-    +limit
+    +limit,
+    new RegExp(searchedComment)
   );
   return apiResponse(
     res,

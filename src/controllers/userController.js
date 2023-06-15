@@ -30,9 +30,7 @@ export const getAllUsers = async (req, res, next) => {
  * @returns {Promise<void>}
  */
 export const getUserProfile = async (req, res, next) => {
-  console.log("req.user.id", req.user.id);
   const userProfile = await userService.getUserProfile(req.user.id);
-  console.log("userProfile", userProfile);
   if (!userProfile)
     return apiResponse(
       res,
@@ -56,12 +54,10 @@ export const editUserProfile = async (req, res, next) => {
       userProfile[keys[i]] = req.body[keys[i]];
     }
   }
-  console.log("userProfile", userProfile);
   const isUpdated = await userService.updateProfile(
     req.body.email,
     userProfile
   );
-  console.log("-------isUpdated", isUpdated);
   if (isUpdated.matchedCount === 0)
     return apiResponse(
       res,
