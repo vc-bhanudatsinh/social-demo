@@ -3,8 +3,9 @@ import express from "express";
 import config from "./config/envConfig.js";
 import connectDb from "./db/connection.js";
 import router from "./routes/index.js";
-import { errorConverter, errorHandler } from "./middlewares/error.js";
 import ApiError from "./utils/apiError.js";
+
+import { errorConverter, errorHandler } from "./middlewares/error.js";
 
 const app = express();
 

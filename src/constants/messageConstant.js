@@ -17,3 +17,9 @@ export const doesNotExistResource = "## does not exists";
 export const successUpdateResource = "## updated Successfully";
 
 export const noUpdateResource = "Nothing to update in ##";
+
+export const passwordChanged = "Please Login Again, password is changed";
+
+export const passwordDoesNotMatch = "Confirm Password does not match";
+
+export const samePassword = "New Password is same as old";

@@ -5,11 +5,15 @@ export const userSignUpSchema = joi.object().keys({
     firstName: joi.string().min(2).max(20).required().messages({
       "string.base": "First Name should be string",
       "string.empty": "First Name should be not empty",
+      "string.min": "First Name length should be min 2",
+      "string.max": "First Name length should be max 20",
       "any.required": "First Name is required field",
     }),
     lastName: joi.string().min(2).max(20).required().messages({
       "string.base": "Last Name should be string",
       "string.empty": "Last Name should be not empty",
+      "string.min": "Last Name length should be min 2",
+      "string.max": "Last Name length should be max 20",
       "any.required": "Last Name is required field",
     }),
     password: joi.string().min(8).max(20).required().messages({
@@ -55,7 +59,7 @@ export const userLoginSchema = joi.object().keys({
       })
       .messages({
         "string.base": "Email should be string",
-        "string.required": "Email is a required field",
+        "any.required": "Email is a required field",
       }),
     password: joi.string().min(8).max(20).required().messages({
       "string.base": "Password should be string",

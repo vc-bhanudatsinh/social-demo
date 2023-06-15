@@ -75,6 +75,6 @@ export const getUserPost = async (req, res, next) => {
     res,
     httpStatus.OK,
     replaceMessage(apiMessage.fetchedResource, "Posts"),
-    posts
+    posts[0]
   );
 };

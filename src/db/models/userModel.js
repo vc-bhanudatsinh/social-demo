@@ -70,8 +70,9 @@ const user = new mongoose.Schema({
       return `${this.firstName}.${this.lastName}.${randomNumber}`;
     },
   },
-  loggedInStatus: {
-    type: Boolean,
+  passwordChangeOtp: {
+    type: String,
+    require: true,
   },
 });
 

@@ -59,7 +59,10 @@ export const getUserPosts = async (userId, limit = 5, skip = 0) => {
       },
     },
     {
-      $addFields: {
+      $project: {
+        _id: 0,
+        totalPosts: 1,
+        results: 1,
         totalPage: {
           $ceil: {
             $divide: ["$totalPosts", limit],

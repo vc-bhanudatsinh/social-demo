@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import User from "../db/models/userModel.js";
 
 export const passwordHash = async (password) => {
   try {
@@ -33,4 +35,8 @@ export const verifyToken = (token, secretKey) => {
   } catch (error) {
     return error;
   }
+};
+
+export const generateOtpHash = async (email) => {
+  return crypto.randomBytes(10).toString("base64").slice(0, 10);
 };

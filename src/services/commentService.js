@@ -5,7 +5,12 @@ export const createComment = async (data, id) => {
   return await Post.updateOne({ id }, { $push: { comments: data } });
 };
 
-export const getComments = async (id, startIndex, limit, searchedComment) => {
+export const getComments = async (
+  id,
+  startIndex,
+  limit,
+  searchedComment = ""
+) => {
   const postId = new mongoose.Types.ObjectId(id);
   const pipeline = [
     {
@@ -39,6 +44,12 @@ export const getComments = async (id, startIndex, limit, searchedComment) => {
     },
     {
       $project: {
+        title: 1,
+        description: 1,
+        _id: 0,
+        createdAt: 1,
+        shareOnly: 1,
+        mentions: 1,
         totalComments: {
           $size: "$comments",
         },

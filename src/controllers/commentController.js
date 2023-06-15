@@ -39,7 +39,11 @@ export const createComment = async (req, res, next) => {
       httpStatus.NOT_FOUND,
       replaceMessage(apiMessage, "Post")
     );
-  return apiResponse(res, httpStatus.OK, "comment create working");
+  return apiResponse(
+    res,
+    httpStatus.OK,
+    replaceMessage(apiMessage.createResource, "Comment")
+  );
 };
 
 export const getComment = async (req, res, next) => {
@@ -56,6 +60,6 @@ export const getComment = async (req, res, next) => {
     res,
     httpStatus.OK,
     "comment fetched successfully",
-    comments
+    comments[0]
   );
 };

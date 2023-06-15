@@ -1,9 +1,12 @@
 import httpStatus from "http-status";
-import apiResponse, { replaceMessage } from "../utils/apiResponse.js";
+
 import config from "../config/envConfig.js";
 import * as apiMessage from "../constants/messageConstant.js";
 import * as auth from "../utils/auth.js";
 import * as authService from "../services/authService.js";
+
+import apiResponse, { replaceMessage } from "../utils/apiResponse.js";
+import { generateOtpHash } from "../utils/auth.js";
 
 /**
  * @function userSignUp - Create a user account
@@ -34,13 +37,18 @@ export const userSignUp = async (req, res, next) => {
         phoneNo,
       };
 
+  userData.passwordChangeOtp = await auth.generateOtpHash(email);
+  console.log("userData.passwordChangeOtp", userData.passwordChangeOtp);
   // creating the user
   const user = await authService.createUser(userData);
 
+  const otpHash = await auth.passwordHash(user.passwordChangeOtp);
+  console.log("otpHash", otpHash);
   // creating accessToken
   const accessToken = auth.createToken(
     {
       id: user.id,
+      ref: otpHash,
     },
     config.accessSecret
   );
@@ -67,7 +75,12 @@ export const loginUser = async (req, res) => {
 
   // get username and hash password from db
   const userData = await authService.getUserPassword(email);
-
+  if (!userData)
+    return apiResponse(
+      res,
+      404,
+      replaceMessage(apiMessage.doesNotExistResource, "Email")
+    );
   // compare passwords
   const isPasswordMatch = await auth.compareHashPassword(
     password,
@@ -81,10 +94,11 @@ export const loginUser = async (req, res) => {
       401,
       replaceMessage(apiMessage.incorrectResource, "Password")
     );
-
+  console.log("userData.passwordChangeOtp", userData.passwordChangeOtp);
+  const otpHash = await auth.passwordHash(userData.passwordChangeOtp);
   // create accessToken
   const accessToken = auth.createToken(
-    { id: userData.id },
+    { id: userData.id, ref: otpHash },
     config.accessSecret
   );
   return apiResponse(res, httpStatus.OK, "Login Successfully", { accessToken });

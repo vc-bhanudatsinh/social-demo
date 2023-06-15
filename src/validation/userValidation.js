@@ -29,7 +29,7 @@ export const editProfileSchema = joi.object().keys({
       })
       .messages({
         "string.base": "Email should be string",
-        "string.required": "Email is a required field",
+        "any.required": "Email is a required field",
       }),
     newEmail: joi
       .string()
@@ -45,11 +45,15 @@ export const editProfileSchema = joi.object().keys({
     firstName: joi.string().min(2).max(20).messages({
       "string.base": "First Name should be string",
       "string.empty": "First Name should be not empty",
+      "string.min": "First Name length should be min 2",
+      "string.max": "First Name length should be max 20",
       "any.required": "First Name is required field",
     }),
     lastName: joi.string().min(2).max(20).messages({
       "string.base": "Last Name should be string",
       "string.empty": "Last Name should be not empty",
+      "string.min": "Last Name length should be min 2",
+      "string.max": "Last Name length should be max 20",
       "any.required": "Last Name is required field",
     }),
     phoneNo: joi
@@ -61,5 +65,24 @@ export const editProfileSchema = joi.object().keys({
         "number.min": "Phone Number should contain 10 digit only",
         "number.max": "Phone Number should contain 10 digit only",
       }),
+  }),
+});
+
+export const changPasswordSchema = joi.object().keys({
+  body: joi.object().keys({
+    password: joi.string().min(8).max(20).required().messages({
+      "string.base": "Password should be string",
+      "string.min": "Password length should be greater than 8",
+      "string.max": "Password length should be less than 20",
+      "string.empty": "Password should can not contain empty value",
+      "any.required": "Password is a required field",
+    }),
+    confirmPassword: joi.string().min(8).max(20).required().messages({
+      "string.base": "Confirm Password should be string",
+      "string.min": "Confirm Password length should be greater than 8",
+      "string.max": "Confirm Password length should be less than 20",
+      "string.empty": "Confirm Password should can not contain empty value",
+      "any.required": "Confirm Password is a required field",
+    }),
   }),
 });
