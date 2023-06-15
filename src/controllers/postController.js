@@ -22,6 +22,8 @@ export const createPost = async (req, res, next) => {
     postType,
     userId: req.user.id,
   };
+
+  // converting username into ids in shareOnly array
   if (shareOnly) {
     shareOnlyIds = await userService.getUserIds(shareOnly);
     if (shareOnlyIds.length === 0)
@@ -33,6 +35,7 @@ export const createPost = async (req, res, next) => {
     data.shareOnly = shareOnlyIds.map((user) => (user = user.id));
   }
 
+  // converting username into ids in mentions array
   if (mentions) {
     userIds = await userService.getUserIds(mentions);
     if (userIds.length === 0)
@@ -43,7 +46,11 @@ export const createPost = async (req, res, next) => {
       );
     data.mentions = userIds.map((user) => (user = user.id));
   }
+
+  // create post
   post = await postService.createPost(data);
+
+  // success response
   const resultPost = {
     title: post.title,
     description: post.description,
@@ -69,8 +76,14 @@ export const createPost = async (req, res, next) => {
  */
 export const getUserPost = async (req, res, next) => {
   const { limit, pageNo = 1 } = req.query;
+
+  // formula to skip posts as per page and limit
   const skip = (pageNo - 1) * limit;
+
+  // get posts
   const posts = await postService.getUserPosts(req.user.id, +limit, +skip);
+
+  // sucess response
   return apiResponse(
     res,
     httpStatus.OK,

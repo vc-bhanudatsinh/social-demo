@@ -22,4 +22,10 @@ authRouter.post(
   catchWraper(authController.loginUser)
 );
 
+authRouter.patch(
+  "/password",
+  validate(authValidation.changPasswordSchema),
+  verifyJwtToken,
+  catchWraper(authController.changePassword)
+);
 export default authRouter;

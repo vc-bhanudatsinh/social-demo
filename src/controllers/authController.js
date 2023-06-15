@@ -4,6 +4,7 @@ import config from "../config/envConfig.js";
 import * as apiMessage from "../constants/messageConstant.js";
 import * as auth from "../utils/auth.js";
 import * as authService from "../services/authService.js";
+import * as userService from "../services/userService.js";
 
 import apiResponse, { replaceMessage } from "../utils/apiResponse.js";
 import { generateOtpHash } from "../utils/auth.js";
@@ -38,12 +39,10 @@ export const userSignUp = async (req, res, next) => {
       };
 
   userData.passwordChangeOtp = await auth.generateOtpHash(email);
-  console.log("userData.passwordChangeOtp", userData.passwordChangeOtp);
   // creating the user
   const user = await authService.createUser(userData);
 
   const otpHash = await auth.passwordHash(user.passwordChangeOtp);
-  console.log("otpHash", otpHash);
   // creating accessToken
   const accessToken = auth.createToken(
     {
@@ -94,7 +93,6 @@ export const loginUser = async (req, res) => {
       401,
       replaceMessage(apiMessage.incorrectResource, "Password")
     );
-  console.log("userData.passwordChangeOtp", userData.passwordChangeOtp);
   const otpHash = await auth.passwordHash(userData.passwordChangeOtp);
   // create accessToken
   const accessToken = auth.createToken(
@@ -104,6 +102,48 @@ export const loginUser = async (req, res) => {
   return apiResponse(res, httpStatus.OK, "Login Successfully", { accessToken });
 };
 
-export const logOutUser = async (req, res) => {
-  const { email } = req.params;
+/**
+ * @function changePassword - Password change of user
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns {Promise <void>}
+ */
+export const changePassword = async (req, res, next) => {
+  const { password, confirmPassword } = req.body;
+
+  // check passowrd is same as confirmPassword
+  if (password !== confirmPassword)
+    return apiResponse(res, 409, apiMessage.passwordDoesNotMatch);
+
+  // get user password from DB
+  const userPassword = await authService.getUserPassword(req.user.email);
+
+  // check new password is same as old password
+  const isPassSame = await auth.compareHashPassword(
+    password,
+    userPassword.password
+  );
+  if (isPassSame) return apiResponse(res, 409, apiMessage.samePassword);
+
+  // generate new otp password change
+  const newChangePasswordOtp = await auth.generateOtpHash(req.user.email);
+
+  // hash new user password
+  const hashNewPassword = await auth.passwordHash(password);
+
+  // change password and otp password in db
+  const isPassChanged = await userService.changePassword(
+    req.user.email,
+    hashNewPassword,
+    newChangePasswordOtp
+  );
+
+  // send success response
+  if (isPassChanged.modifiedCount === 1)
+    return apiResponse(
+      res,
+      200,
+      replaceMessage(apiMessage.successUpdateResource, "Password")
+    );
 };

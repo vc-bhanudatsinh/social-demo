@@ -15,6 +15,7 @@ import * as apiMessage from "../constants/messageConstant.js";
  * @returns {Promise<void>}
  */
 export const getAllUsers = async (req, res, next) => {
+  // get all user from db
   const users = await userService.getAllUsers();
 
   return res.status(httpStatus.OK).send({
@@ -31,13 +32,18 @@ export const getAllUsers = async (req, res, next) => {
  * @returns {Promise<void>}
  */
 export const getUserProfile = async (req, res, next) => {
+  // get user profile from db
   const userProfile = await userService.getUserProfile(req.user.id);
+
+  // profile not found response
   if (!userProfile)
     return apiResponse(
       res,
       httpStatus.NOT_FOUND,
       replaceMessage(apiMessage.doesNotExistResource, "User")
     );
+
+  // success response
   return apiResponse(
     res,
     httpStatus.OK,
@@ -46,14 +52,26 @@ export const getUserProfile = async (req, res, next) => {
   );
 };
 
+/**
+ * @function editUserProfile - edit user profile
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns {Promise<void>}
+ */
 export const editUserProfile = async (req, res, next) => {
+  // get fields to be updated
   const keys = Object.keys(req.body);
+
+  // if there are no fields to updated
   if (keys.length === 1 && keys.includes("email"))
     return apiResponse(
       res,
       400,
       replaceMessage(apiMessage.doesNotExistResource, "Updated fields")
     );
+
+  // data to update in user collection
   const userProfile = {};
   for (let i = 0; i < keys.length; i++) {
     if (keys[i] !== "email") {
@@ -61,56 +79,32 @@ export const editUserProfile = async (req, res, next) => {
       userProfile[keys[i]] = req.body[keys[i]];
     }
   }
+
+  // update profile data in db
   const isUpdated = await userService.updateProfile(
     req.body.email,
     userProfile
   );
+
+  // no user profile found
   if (isUpdated.matchedCount === 0)
     return apiResponse(
       res,
       httpStatus.OK,
       replaceMessage(apiMessage.incorrectResource, "Email")
     );
+  // user profile data not updated
   else if (isUpdated.modifiedCount === 0)
     return apiResponse(
       res,
       httpStatus.OK,
       replaceMessage(apiMessage.noUpdateResource, "Profile")
     );
+
+  // success response
   return apiResponse(
     res,
     httpStatus.OK,
     replaceMessage(apiMessage.successUpdateResource, "Profile")
   );
-};
-
-export const changePassword = async (req, res, next) => {
-  const { password, confirmPassword } = req.body;
-  console.log("password", password, confirmPassword);
-  if (password !== confirmPassword)
-    return apiResponse(res, 409, apiMessage.passwordDoesNotMatch);
-  console.log("req.user", req.user);
-  const userPassword = await authService.getUserPassword(req.user.email);
-  console.log("userPassword", userPassword);
-  const isPassSame = await auth.compareHashPassword(
-    password,
-    userPassword.password
-  );
-  console.log("isPassSame", isPassSame);
-  if (isPassSame) return apiResponse(res, 409, apiMessage.samePassword);
-  const newChangePasswordOtp = await auth.generateOtpHash(req.user.email);
-  console.log("newChangePasswordOtp", newChangePasswordOtp);
-  const hashNewPassword = await auth.passwordHash(password);
-  const isPassChanged = await userService.changePassword(
-    req.user.email,
-    hashNewPassword,
-    newChangePasswordOtp
-  );
-  console.log("isPassChanges", isPassChanged);
-  if (isPassChanged.modifiedCount === 1)
-    return apiResponse(
-      res,
-      200,
-      replaceMessage(apiMessage.successUpdateResource, "Password")
-    );
 };

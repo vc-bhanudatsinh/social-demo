@@ -26,11 +26,4 @@ userRouter.patch(
   duplicateDataError
 );
 
-userRouter.patch(
-  "/password",
-  validate(userValidation.changPasswordSchema),
-  verifyJwtToken,
-  catchWraper(userController.changePassword)
-);
-
 export default userRouter;
