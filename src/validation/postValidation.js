@@ -15,9 +15,10 @@ export const createPostSchema = joi.object().keys({
       "any.required": "Description is required",
     }),
     mentions: joi.array().items(
-      joi.string().required().messages({
+      joi.string().min(24).required().messages({
         "string.base": "Mentions should be string",
-        "string.min": "Mentions should be greater than length 7",
+        "string.min":
+          "Mentions array value should be of min charchter length 24",
         "string.empty": "Mentions can not be empty",
         "any.required": "Mentions is required",
       })
@@ -30,11 +31,30 @@ export const createPostSchema = joi.object().keys({
     shareOnly: joi
       .array()
       .when("postType", { is: "private", then: joi.array().required() })
-      .messages({
-        "string.base": "Share Only should be string",
-        "string.min": "Share Only should be greater than length 2",
-        "string.empty": "Share Only can not be empty",
-        "any.required": "Share Only is required",
-      }),
+      .items(
+        joi.string().min(24).required().messages({
+          "string.base": "Share Only should be string",
+          "string.min": "Share Only should be greater than length 24",
+          "string.empty": "Share Only can not be empty",
+          "any.required": "Share Only is required",
+        })
+      ),
+  }),
+});
+
+export const getPostDetailsSchema = joi.object().keys({
+  query: joi.object().keys({
+    limit: joi.number().required().messages({
+      "number.base": "Limit should be number",
+      "number.min": "Limit should be greater than length 24",
+      "number.empty": "Limit can not be empty",
+      "any.required": "Limit is required",
+    }),
+    pageNo: joi.number().required().messages({
+      "number.base": "Page No should be number",
+      "number.min": "Page No should be greater than length 24",
+      "number.empty": "Page No can not be empty",
+      "any.required": "Page No is required",
+    }),
   }),
 });
