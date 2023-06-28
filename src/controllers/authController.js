@@ -4,7 +4,6 @@ import config from "../config/envConfig.js";
 import * as apiMessage from "../constants/messageConstant.js";
 import * as auth from "../utils/auth.js";
 import * as authService from "../services/authService.js";
-import * as userService from "../services/userService.js";
 
 import apiResponse, { replaceMessage } from "../utils/apiResponse.js";
 import { generateOtpHash } from "../utils/auth.js";
@@ -23,20 +22,14 @@ export const userSignUp = async (req, res, next) => {
   const hashPassword = await auth.passwordHash(password);
 
   // create object  as per phoneNo existence
-  const userData = !phoneNo
-    ? {
-        firstName,
-        lastName,
-        password: hashPassword,
-        email,
-      }
-    : {
-        firstName,
-        lastName,
-        password: hashPassword,
-        email,
-        phoneNo,
-      };
+  const userData = {
+    firstName,
+    lastName,
+    password: hashPassword,
+    email,
+  };
+
+  if (phoneNo) userData.phoneNo = phoneNo;
 
   userData.passwordChangeOtp = await auth.generateOtpHash(email);
   // creating the user
@@ -78,7 +71,8 @@ export const loginUser = async (req, res) => {
     return apiResponse(
       res,
       404,
-      replaceMessage(apiMessage.doesNotExistResource, "Email")
+      replaceMessage(apiMessage.doesNotExistResource, "Email or Password")
+      // Email does not exist or credentials is not right
     );
   // compare passwords
   const isPasswordMatch = await auth.compareHashPassword(
@@ -91,9 +85,10 @@ export const loginUser = async (req, res) => {
     return apiResponse(
       res,
       401,
-      replaceMessage(apiMessage.incorrectResource, "Password")
+      replaceMessage(apiMessage.incorrectResource, "Email or Password")
     );
   const otpHash = await auth.passwordHash(userData.passwordChangeOtp);
+
   // create accessToken
   const accessToken = auth.createToken(
     { id: userData.id, ref: otpHash },
@@ -110,11 +105,7 @@ export const loginUser = async (req, res) => {
  * @returns {Promise <void>}
  */
 export const changePassword = async (req, res, next) => {
-  const { password, confirmPassword } = req.body;
-
-  // check passowrd is same as confirmPassword
-  if (password !== confirmPassword)
-    return apiResponse(res, 409, apiMessage.passwordDoesNotMatch);
+  const { password } = req.body;
 
   // get user password from DB
   const userPassword = await authService.getUserPassword(req.user.email);
@@ -133,17 +124,27 @@ export const changePassword = async (req, res, next) => {
   const hashNewPassword = await auth.passwordHash(password);
 
   // change password and otp password in db
-  const isPassChanged = await userService.changePassword(
-    req.user.email,
+
+  console.log("req.user", typeof req.user["_id"]);
+  const isPassChanged = await authService.changePassword(
+    req.user["_id"],
     hashNewPassword,
     newChangePasswordOtp
   );
 
+  // send new access token in res
   // send success response
-  if (isPassChanged.modifiedCount === 1)
+  if (isPassChanged.modifiedCount === 1) {
+    const otpHash = await auth.passwordHash(user.passwordChangeOtp);
+    const accessToken = auth.createToken(
+      { id: userPassword.id, ref: otpHash },
+      config.accessSecret
+    );
     return apiResponse(
       res,
       200,
-      replaceMessage(apiMessage.successUpdateResource, "Password")
+      replaceMessage(apiMessage.successUpdateResource, "Password"),
+      accessToken
     );
+  }
 };

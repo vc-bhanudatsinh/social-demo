@@ -1,4 +1,4 @@
-export const duplicate = "Duplicate ##";
+export const duplicate = "This ## already exists"; // This ## already exists
 
 export const createResource = "## created Successfully";
 
