@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import httpStatus from "http-status";
 
 import config from "../config/envConfig.js";
@@ -21,7 +20,7 @@ export const verifyJwtToken = catchWraper(async (req, res, next) => {
 
   const data = auth.verifyToken(token, config.accessSecret);
 
-  const user = await userService.getUserPrivateDetails(data.id);
+  const user = await userService.getUserDetails(data.id);
   if (!user)
     return apiResponse(
       res,
@@ -33,6 +32,7 @@ export const verifyJwtToken = catchWraper(async (req, res, next) => {
     user.passwordChangeOtp,
     data.ref
   );
+
   if (!compareOtpHash)
     return apiResponse(res, httpStatus.FORBIDDEN, apiMessage.passwordChanged);
   req.user = user;

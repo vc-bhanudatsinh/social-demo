@@ -1,5 +1,6 @@
 import express from "express";
 
+import { verifyJwtToken } from "../middlewares/verifyJwt.js";
 import validate from "../middlewares/validation.js";
 import catchWraper from "../utils/catchWrapper.js";
 import { duplicateDataError } from "../middlewares/error.js";
