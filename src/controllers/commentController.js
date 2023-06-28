@@ -19,6 +19,7 @@ export const createComment = async (req, res, next) => {
 
   // check for Post exist
   const post = await postService.getPostById(postId);
+
   if (!post)
     return apiResponse(
       res,
@@ -29,9 +30,9 @@ export const createComment = async (req, res, next) => {
   // check if user is allowed to see the post
   if (
     post.postType === "private" &&
-    post.userId !== req.user.id &&
-    post.mentions.includes(req.user.id) &&
-    post.shareOnly.includes(req.user.id)
+    post.userId !== req.user["_id"] &&
+    post.mentions.includes(req.user["_id"]) &&
+    post.shareOnly.includes(req.user["_id"])
   )
     return apiResponse(
       res,
@@ -41,53 +42,27 @@ export const createComment = async (req, res, next) => {
 
   const data = {
     comment,
+    userId: req.user["_id"],
   };
 
   // convert username into ids mentions array
-  data.mentions = await userService.getUserIds(mentions);
-
+  const userIds = await userService.validateUserIds(mentions);
+  data.mentions =
+    userIds.length === 0
+      ? userIds
+      : userIds.map((user) => (user = user["_id"]));
   // create comment in the post
-  const createdComment = await commentService.createComment(data);
+  const createdComment = await commentService.createComment(data, postId);
 
-  // check if post is exist
-  if (createdComment.matchedCount === 0)
+  if (createdComment.modifiedCount === 0)
     return apiResponse(
       res,
-      httpStatus.NOT_FOUND,
-      replaceMessage(apiMessage, "Post")
+      httpStatus.CONFLICT,
+      "Try Again Comment not created"
     );
   return apiResponse(
     res,
     httpStatus.OK,
     replaceMessage(apiMessage.createResource, "Comment")
-  );
-};
-
-/**
- * @function getComment - Get comment with pagination and search filter
- * @param {object} req
- * @param {object} res
- * @param {object} next
- * @returns {Promise<void>}
- */
-export const getComment = async (req, res, next) => {
-  const postId = req.params.postId;
-  const { limit = 5, pageNo = 1, searchedComment } = req.query;
-
-  // get index according to page no and limit
-  const startIndex = (pageNo - 1) * limit;
-
-  // get comments from db
-  const comments = await commentService.getComments(
-    postId,
-    +startIndex,
-    +limit,
-    new RegExp(searchedComment)
-  );
-  return apiResponse(
-    res,
-    httpStatus.OK,
-    "comment fetched successfully",
-    comments[0]
   );
 };

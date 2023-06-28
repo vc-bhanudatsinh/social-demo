@@ -25,13 +25,3 @@ export const createComment = joi.object().keys({
     }),
   }),
 });
-
-export const getComment = joi.object().keys({
-  query: joi.object().keys({
-    searchedComment: joi.string().messages({
-      "string.base": "Search text should be string",
-      "string.empty": "Search text can not be empty",
-      "any.required": "Search text is required",
-    }),
-  }),
-});

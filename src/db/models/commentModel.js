@@ -19,6 +19,10 @@ const commentSchema = new mongoose.Schema({
       return new Date();
     },
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
 });
 
 export default commentSchema;

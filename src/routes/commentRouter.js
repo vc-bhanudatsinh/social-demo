@@ -17,11 +17,4 @@ commentRouter.post(
   catchWraper(commentController.createComment)
 );
 
-commentRouter.get(
-  "/:postId",
-  validate(commentValidation.getComment),
-  verifyJwtToken,
-  catchWraper(commentController.getComment)
-);
-
 export default commentRouter;
