@@ -1,10 +1,7 @@
 import httpStatus from "http-status";
 
-import User from "../db/models/userModel.js";
 import apiResponse, { replaceMessage } from "../utils/apiResponse.js";
-import * as auth from "../utils/auth.js";
 import * as userService from "../services/userService.js";
-import * as authService from "../services/authService.js";
 import * as apiMessage from "../constants/messageConstant.js";
 
 /**
@@ -32,23 +29,12 @@ export const getAllUsers = async (req, res, next) => {
  * @returns {Promise<void>}
  */
 export const getUserProfile = async (req, res, next) => {
-  // get user profile from db
-  const userProfile = await userService.getUserProfile(req.user.id);
-
-  // profile not found response
-  if (!userProfile)
-    return apiResponse(
-      res,
-      httpStatus.NOT_FOUND,
-      replaceMessage(apiMessage.doesNotExistResource, "User")
-    );
-
   // success response
   return apiResponse(
     res,
     httpStatus.OK,
     replaceMessage(apiMessage.fetchedResource, "User Profile"),
-    userProfile
+    req.user
   );
 };
 
@@ -64,7 +50,7 @@ export const editUserProfile = async (req, res, next) => {
   const keys = Object.keys(req.body);
 
   // if there are no fields to updated
-  if (keys.length === 1 && keys.includes("email"))
+  if (keys.length === 0)
     return apiResponse(
       res,
       400,
@@ -74,30 +60,20 @@ export const editUserProfile = async (req, res, next) => {
   // data to update in user collection
   const userProfile = {};
   for (let i = 0; i < keys.length; i++) {
-    if (keys[i] !== "email") {
-      if (keys[i] === "newEmail") userProfile["email"] = req.body[keys[i]];
-      userProfile[keys[i]] = req.body[keys[i]];
-    }
+    userProfile[keys[i]] = req.body[keys[i]];
   }
 
   // update profile data in db
   const isUpdated = await userService.updateProfile(
-    req.body.email,
+    req.user["_id"],
     userProfile
   );
 
-  // no user profile found
-  if (isUpdated.matchedCount === 0)
-    return apiResponse(
-      res,
-      httpStatus.OK,
-      replaceMessage(apiMessage.incorrectResource, "Email")
-    );
   // user profile data not updated
-  else if (isUpdated.modifiedCount === 0)
+  if (isUpdated.modifiedCount === 0)
     return apiResponse(
       res,
-      httpStatus.OK,
+      httpStatus.NOT_MODIFIED,
       replaceMessage(apiMessage.noUpdateResource, "Profile")
     );
 

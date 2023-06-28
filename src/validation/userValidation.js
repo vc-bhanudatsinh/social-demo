@@ -22,7 +22,6 @@ export const editProfileSchema = joi.object().keys({
   body: joi.object().keys({
     email: joi
       .string()
-      .required()
       .custom((value, helper) => {
         const regex = new RegExp("[^@ \t\r\n]+@[^@ \t\r\n]+.[^@ \t\r\n]+");
         if (!regex.test(value))
@@ -32,18 +31,6 @@ export const editProfileSchema = joi.object().keys({
         "string.base": "Email should be string",
         "string.empty": "Email can not be empty",
         "any.required": "Email is a required field",
-      }),
-    newEmail: joi
-      .string()
-      .custom((value, helper) => {
-        const regex = new RegExp("[^@ \t\r\n]+@[^@ \t\r\n]+.[^@ \t\r\n]+");
-        if (!regex.test(value))
-          return helper.message(`${value} is not a valid Email`);
-      })
-      .messages({
-        "string.base": "Email should be string",
-        "string.required": "Email is a required field",
-        "string.empty": "Email can not be empty",
       }),
     firstName: joi.string().min(2).max(20).messages({
       "string.base": "First Name should be string",
